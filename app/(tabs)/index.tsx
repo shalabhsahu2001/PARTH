@@ -1,14 +1,25 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import LoginScreen from '../screens/LoginScreen';
+import RegisterScreen from '../screens/RegisterScreen';
 
-export default function HomeScreen() {
+const Stack = createNativeStackNavigator();
+
+const App = () => {
   return (
-    <LoginScreen />
+    <NavigationContainer independent={true}>
+      <Stack.Navigator 
+        initialRouteName="Login" // Set the initial route to Login
+        screenOptions={{
+          headerShown: false, // Hide headers for all screens
+        }}
+      >
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
-}
+};
 
+export default App;

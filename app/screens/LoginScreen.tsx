@@ -9,19 +9,26 @@ import {
   Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome5 } from '@expo/vector-icons'; // Icon import
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient'; // Import only once
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // Import icon library
-//import logo from '@/assets/images/parth.png'; // Import logo image
+import { FontAwesome5 } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
+
+// Define the types for navigation
+type RootStackParamList = {
+  Login: undefined;
+  Register: undefined;
+};
+
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC = () => {
+  const navigation = useNavigation<NavigationProp>();
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [isEmailFocused, setIsEmailFocused] = useState<boolean>(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState<boolean>(false);
-  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false); // Password visibility state
+  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -47,14 +54,11 @@ const LoginScreen: React.FC = () => {
   };
 
   const handleRegister = () => {
-    // Navigate to the register screen or show a message
-    Alert.alert('Register', 'This will take you to the register screen');
+    navigation.navigate('Register'); // Navigate to Register screen
   };
 
   return (
-
     <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
-    <LinearGradient colors={['#F8F9FA', '#f5f5f5']} style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('@/assets/images/parth.png')} />
       </View>
@@ -85,7 +89,7 @@ const LoginScreen: React.FC = () => {
             placeholderTextColor="#aaa"
             value={password}
             onChangeText={setPassword}
-            secureTextEntry={!isPasswordVisible} // Toggle visibility
+            secureTextEntry={!isPasswordVisible}
           />
           <TouchableOpacity
             onPress={() => setPasswordVisible(!isPasswordVisible)}
@@ -105,11 +109,9 @@ const LoginScreen: React.FC = () => {
         >
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
-        
+
         <View style={styles.registerContainer}>
-          <Text style={styles.registerText}>
-            Don't have an account? 
-          </Text>
+          <Text style={styles.registerText}>Don't have an account?</Text>
           <TouchableOpacity onPress={handleRegister}>
             <Text style={styles.registerButton}> Register</Text>
           </TouchableOpacity>
@@ -126,16 +128,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: 20, // Reduced space between logo and login box
+    marginBottom: 20,
     alignItems: 'center',
-  },
-  logo: {
-    width: 450, // Adjust the width as needed
-    height: 450, // Adjust the height as needed
   },
   loginBox: {
     width: '85%',
-    paddingVertical: 30, // Adjusted padding
+    paddingVertical: 30,
     paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,
@@ -145,13 +143,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 10,
-    marginBottom: 15, // Optional: Adjust if needed
+    marginBottom: 15,
   },
   title: {
     fontSize: 30,
     fontWeight: '700',
     color: '#2C3E50',
-    marginBottom: 20, // Adjusted spacing
+    marginBottom: 20,
     textAlign: 'center',
     letterSpacing: 1,
   },
