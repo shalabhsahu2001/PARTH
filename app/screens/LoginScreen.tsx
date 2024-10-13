@@ -7,11 +7,9 @@ import {
   StyleSheet,
   Alert,
   Image,
-  TextInputProps,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { FontAwesome5 } from '@expo/vector-icons';
- // Icon import
+import { FontAwesome5 } from '@expo/vector-icons'; // Icon import
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -47,7 +45,7 @@ const LoginScreen: React.FC = () => {
   return (
     <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('@/assets/images/parth.png')} resizeMode="contain" />
+        <Image source={require('@/assets/images/parth.png')} />
       </View>
       <LinearGradient
         colors={['#ffffff', '#EAF0F1']}
@@ -108,12 +106,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: 40,
+    marginBottom: 20, // Reduced space between logo and login box
     alignItems: 'center',
   },
   loginBox: {
     width: '85%',
-    paddingVertical: 35,
+    paddingVertical: 30, // Adjusted padding
     paddingHorizontal: 30,
     borderRadius: 20,
     borderWidth: 1,
@@ -123,13 +121,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 20,
     elevation: 10,
-    marginBottom: 20,
+    marginBottom: 15, // Optional: Adjust if needed
   },
   title: {
     fontSize: 30,
     fontWeight: '700',
     color: '#2C3E50',
-    marginBottom: 25,
+    marginBottom: 20, // Adjusted spacing
     textAlign: 'center',
     letterSpacing: 1,
   },
