@@ -42,6 +42,11 @@ const LoginScreen: React.FC = () => {
     }
   };
 
+  const handleRegister = () => {
+    // Navigate to the register screen or show a message
+    Alert.alert('Register', 'This will take you to the register screen');
+  };
+
   return (
     <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
       <View style={styles.logoContainer}>
@@ -94,6 +99,15 @@ const LoginScreen: React.FC = () => {
         >
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
+        
+        <View style={styles.registerContainer}>
+          <Text style={styles.registerText}>
+            Don't have an account? 
+          </Text>
+          <TouchableOpacity onPress={handleRegister}>
+            <Text style={styles.registerButton}> Register</Text>
+          </TouchableOpacity>
+        </View>
       </LinearGradient>
     </LinearGradient>
   );
@@ -179,6 +193,20 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 18,
+    fontWeight: '600',
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  registerText: {
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  registerButton: {
+    fontSize: 16,
+    color: '#2980B9',
     fontWeight: '600',
   },
 });
