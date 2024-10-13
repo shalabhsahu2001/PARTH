@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import { LinearGradient } from 'expo-linear-gradient'; // Import only once
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // Import icon library
+//import logo from '@/assets/images/parth.png'; // Import logo image
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -35,7 +36,7 @@ const LoginScreen = () => {
   };
 
   return (
-    <LinearGradient colors={['#F8F9FA', '#']} style={styles.container}>
+    <LinearGradient colors={['#F8F9FA', '#f5f5f5']} style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('@/assets/images/parth.png')} style={styles.logoContainer} />
       </View>
@@ -92,6 +93,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginBottom: 40,
     alignItems: 'center',
+  },
+  logo: {
+    width: 450, // Adjust the width as needed
+    height: 450, // Adjust the height as needed
   },
   loginBox: {
     width: '85%',
