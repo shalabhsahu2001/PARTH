@@ -1,27 +1,50 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Platform } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient'; // For a nice gradient background
-import OrbitAnimation from '@/components/OrbitAnimation';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // Import icon library
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [isEmailFocused, setIsEmailFocused] = useState(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // New state to toggle password visibility
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-    Alert.alert('Login Successful', `Welcome ${email}`);
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000)); 
+      Alert.alert('Login Successful', `Welcome ${email}`);
+    } catch (error) {
+      Alert.alert('Error', 'Login failed');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <LinearGradient colors={['#A9B2B1', '#F5F5F5', '#a9b2b1']} style={styles.container}>
+    <LinearGradient colors={['#F8F9FA', '#']} style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image source={require('@/assets/images/parth.png')} style={styles.logoContainer} />
+      </View>
       <View style={styles.loginBox}>
         <Text style={styles.title}>Login</Text>
-        
         <TextInput
-          style={styles.input}
+          style={[styles.input, isEmailFocused && { borderColor: '#2980B9' }]}
+          onFocus={() => setIsEmailFocused(true)}
+          onBlur={() => setIsEmailFocused(false)}
           placeholder="Email"
           placeholderTextColor="#aaa"
           value={email}
@@ -29,18 +52,31 @@ const LoginScreen = () => {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#aaa"
-          value={password}
-          onChangeText={setPassword}
-          secureTextEntry
-        />
-        
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={[styles.input, isPasswordFocused && { borderColor: '#2980B9' }, styles.passwordInput]}
+            onFocus={() => setIsPasswordFocused(true)}
+            onBlur={() => setIsPasswordFocused(false)}
+            placeholder="Password"
+            placeholderTextColor="#aaa"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword} // Toggle password visibility
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"} // Show/hide icon
+              size={24}
+              color="grey"
+            />
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          style={[styles.button, loading && { backgroundColor: '#BDC3C7' }]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -53,19 +89,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  logoContainer: {
+    marginBottom: 40,
+    alignItems: 'center',
+  },
   loginBox: {
-    width: '90%',
+    width: '85%',
     padding: 25,
     backgroundColor: '#fff',
-    borderRadius: 15,
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
     shadowRadius: 10,
-    elevation: 8, // Android shadow support
+    elevation: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   title: {
-    fontSize: 28,
+    fontSize: 30,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 20,
@@ -73,17 +115,24 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 50,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f9f9f9',
     borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#ddd',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 2,
+  },
+  passwordContainer: {
+    position: 'relative',
+  },
+  passwordInput: {
+    paddingRight: 45, // Add padding to make space for the eye icon
+  },
+  eyeIcon: {
+    position: 'absolute',
+    right: 15,
+    top: 12, // Adjust this value to align the icon vertically in the input field
+    zIndex: 1,
   },
   button: {
     height: 50,
@@ -91,11 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    elevation: 5,
+    marginTop: 20,
   },
   buttonText: {
     color: '#fff',
