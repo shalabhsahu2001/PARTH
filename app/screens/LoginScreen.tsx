@@ -1,16 +1,27 @@
 import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { FontAwesome5 } from '@expo/vector-icons'; // Icon import
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient'; // Import only once
 import { MaterialCommunityIcons } from '@expo/vector-icons'; // Import icon library
 //import logo from '@/assets/images/parth.png'; // Import logo image
 
-const LoginScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [isEmailFocused, setIsEmailFocused] = useState(false);
-  const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-  const [showPassword, setShowPassword] = useState(false); // New state to toggle password visibility
+const LoginScreen: React.FC = () => {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [isEmailFocused, setIsEmailFocused] = useState<boolean>(false);
+  const [isPasswordFocused, setIsPasswordFocused] = useState<boolean>(false);
+  const [isPasswordVisible, setPasswordVisible] = useState<boolean>(false); // Password visibility state
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -26,7 +37,7 @@ const LoginScreen = () => {
 
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); 
+      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate an API call
       Alert.alert('Login Successful', `Welcome ${email}`);
     } catch (error) {
       Alert.alert('Error', 'Login failed');
@@ -35,12 +46,24 @@ const LoginScreen = () => {
     }
   };
 
+  const handleRegister = () => {
+    // Navigate to the register screen or show a message
+    Alert.alert('Register', 'This will take you to the register screen');
+  };
+
   return (
+
+    <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
     <LinearGradient colors={['#F8F9FA', '#f5f5f5']} style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('@/assets/images/parth.png')} style={styles.logoContainer} />
+        <Image source={require('@/assets/images/parth.png')} />
       </View>
-      <View style={styles.loginBox}>
+      <LinearGradient
+        colors={['#ffffff', '#EAF0F1']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.loginBox}
+      >
         <Text style={styles.title}>Login</Text>
         <TextInput
           style={[styles.input, isEmailFocused && { borderColor: '#2980B9' }]}
@@ -55,20 +78,23 @@ const LoginScreen = () => {
         />
         <View style={styles.passwordContainer}>
           <TextInput
-            style={[styles.input, isPasswordFocused && { borderColor: '#2980B9' }, styles.passwordInput]}
+            style={[styles.passwordInput, isPasswordFocused && { borderColor: '#2980B9' }]}
             onFocus={() => setIsPasswordFocused(true)}
             onBlur={() => setIsPasswordFocused(false)}
             placeholder="Password"
             placeholderTextColor="#aaa"
             value={password}
             onChangeText={setPassword}
-            secureTextEntry={!showPassword} // Toggle password visibility
+            secureTextEntry={!isPasswordVisible} // Toggle visibility
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeIcon}>
-            <MaterialCommunityIcons
-              name={showPassword ? "eye-off" : "eye"} // Show/hide icon
-              size={24}
-              color="grey"
+          <TouchableOpacity
+            onPress={() => setPasswordVisible(!isPasswordVisible)}
+            style={styles.eyeIcon}
+          >
+            <FontAwesome5
+              name={isPasswordVisible ? 'eye-slash' : 'eye'}
+              size={20}
+              color="#2980B9"
             />
           </TouchableOpacity>
         </View>
@@ -79,7 +105,16 @@ const LoginScreen = () => {
         >
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
-      </View>
+        
+        <View style={styles.registerContainer}>
+          <Text style={styles.registerText}>
+            Don't have an account? 
+          </Text>
+          <TouchableOpacity onPress={handleRegister}>
+            <Text style={styles.registerButton}> Register</Text>
+          </TouchableOpacity>
+        </View>
+      </LinearGradient>
     </LinearGradient>
   );
 };
@@ -91,7 +126,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    marginBottom: 40,
+    marginBottom: 20, // Reduced space between logo and login box
     alignItems: 'center',
   },
   logo: {
@@ -100,44 +135,57 @@ const styles = StyleSheet.create({
   },
   loginBox: {
     width: '85%',
-    padding: 25,
-    backgroundColor: '#fff',
+    paddingVertical: 30, // Adjusted padding
+    paddingHorizontal: 30,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 10,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: '#E0E0E0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+    elevation: 10,
+    marginBottom: 15, // Optional: Adjust if needed
   },
   title: {
     fontSize: 30,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    fontWeight: '700',
+    color: '#2C3E50',
+    marginBottom: 20, // Adjusted spacing
     textAlign: 'center',
+    letterSpacing: 1,
   },
   input: {
     height: 50,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#f0f0f0',
     borderRadius: 12,
     paddingHorizontal: 15,
     marginBottom: 15,
     borderWidth: 1,
     borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   passwordContainer: {
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 12,
+    backgroundColor: '#f0f0f0',
+    paddingHorizontal: 15,
   },
   passwordInput: {
-    paddingRight: 45, // Add padding to make space for the eye icon
+    flex: 1,
+    height: 50,
+    paddingHorizontal: 5,
+    fontSize: 16,
   },
   eyeIcon: {
-    position: 'absolute',
-    right: 15,
-    top: 12, // Adjust this value to align the icon vertically in the input field
-    zIndex: 1,
+    marginLeft: 10,
   },
   button: {
     height: 50,
@@ -145,11 +193,30 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 5,
+    marginTop: 15,
   },
   buttonText: {
     color: '#fff',
     fontSize: 18,
+    fontWeight: '600',
+  },
+  registerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  registerText: {
+    fontSize: 16,
+    color: '#2C3E50',
+  },
+  registerButton: {
+    fontSize: 16,
+    color: '#2980B9',
     fontWeight: '600',
   },
 });
