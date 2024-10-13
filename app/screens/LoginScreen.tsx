@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons'; // Icon import
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient'; // Import only once
+import { MaterialCommunityIcons } from '@expo/vector-icons'; // Import icon library
+//import logo from '@/assets/images/parth.png'; // Import logo image
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -48,7 +52,9 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
+
     <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
+    <LinearGradient colors={['#F8F9FA', '#f5f5f5']} style={styles.container}>
       <View style={styles.logoContainer}>
         <Image source={require('@/assets/images/parth.png')} />
       </View>
@@ -122,6 +128,10 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginBottom: 20, // Reduced space between logo and login box
     alignItems: 'center',
+  },
+  logo: {
+    width: 450, // Adjust the width as needed
+    height: 450, // Adjust the height as needed
   },
   loginBox: {
     width: '85%',
