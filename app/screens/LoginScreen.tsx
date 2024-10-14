@@ -80,7 +80,12 @@ const LoginScreen: React.FC = () => {
           keyboardType="email-address"
           autoCapitalize="none"
         />
-        <View style={styles.passwordContainer}>
+        <View
+          style={[
+            styles.passwordContainer,
+            isPasswordFocused && { borderColor: '#2980B9', shadowOpacity: 0.3 },
+          ]}
+        >
           <TextInput
             style={[styles.passwordInput, isPasswordFocused && { borderColor: '#2980B9' }]}
             onFocus={() => setIsPasswordFocused(true)}
@@ -175,6 +180,11 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: '#f0f0f0',
     paddingHorizontal: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 2,
   },
   passwordInput: {
     flex: 1,
