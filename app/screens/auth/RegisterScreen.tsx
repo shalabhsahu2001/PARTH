@@ -9,12 +9,13 @@ import {
   ScrollView,
   Animated,
   Easing,
-  Image, // Added Image import
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useGoogleOAuth }  from '../../api/googleService';  // Import useGoogleAuth hook
 
 type RootStackParamList = {
   Login: undefined;
@@ -35,12 +36,11 @@ const RegisterScreen: React.FC = () => {
   const [licensePlate, setLicensePlate] = useState<string>('');
 
   // Animation state
-  const [buttonAnimation] = useState(new Animated.Value(1)); // Button scale animation
-  const [fadeAnim] = useState(new Animated.Value(0)); // Fade animation for form
-  const [slideAnim] = useState(new Animated.Value(-100)); // Slide animation for form
+  const [buttonAnimation] = useState(new Animated.Value(1));
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(-100));
 
   useEffect(() => {
-    // Start fade-in and slide-in effect for form content
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -55,6 +55,8 @@ const RegisterScreen: React.FC = () => {
       }),
     ]).start();
   }, []);
+
+  const { promptAsync } = useGoogleOAuth();  // Use Google OAuth
 
   const handleRegister = () => {
     if (!nameDLRC || !email || !password || !confirmPassword || !vehicleModel || !licensePlate) {
@@ -71,19 +73,19 @@ const RegisterScreen: React.FC = () => {
     navigation.navigate('Login');
   };
 
-  const handleGoogleSignUp = () => {
-    Alert.alert('Google Sign-Up', 'Google sign-up is not yet implemented');
+  const handleGoogleSignUp = async () => {
+    await promptAsync();  // Trigger Google OAuth flow
   };
 
   const animateButton = () => {
     Animated.sequence([
       Animated.timing(buttonAnimation, {
-        toValue: 0.95, // Scale down
+        toValue: 0.95,
         duration: 150,
         useNativeDriver: true,
       }),
       Animated.timing(buttonAnimation, {
-        toValue: 1, // Scale back up
+        toValue: 1,
         duration: 150,
         useNativeDriver: true,
       }),
@@ -124,7 +126,6 @@ const RegisterScreen: React.FC = () => {
           {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock')}
 
           {/* Vehicle Model Input */}
-
           {/* License Plate Input */}
           {renderInput('License Plate', licensePlate, setLicensePlate, 'id-card')}
 
