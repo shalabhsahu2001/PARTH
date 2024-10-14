@@ -143,7 +143,7 @@ const RegisterScreen: React.FC = () => {
 
           {/* Sign Up with Google */}
           <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
-            <Image source={require('../../assets/images/google-logo.png')} style={styles.googleLogo} />
+            <Image source={require('../../../assets/images/google-logo.png')} style={styles.googleLogo} />
             <Text style={styles.googleButtonText}>Sign Up with Google</Text>
           </TouchableOpacity>
 

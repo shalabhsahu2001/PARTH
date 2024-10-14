@@ -60,7 +60,7 @@ const LoginScreen: React.FC = () => {
   return (
     <LinearGradient colors={['#F0F4F8', '#D9E4EC']} style={styles.container}>
       <View style={styles.logoContainer}>
-        <Image source={require('../../assets/images/parth.png')} />
+        <Image source={require('../../../assets/images/parth.png')} />
       </View>
       <LinearGradient
         colors={['#ffffff', '#EAF0F1']}
