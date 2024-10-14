@@ -119,7 +119,7 @@ const RegisterScreen: React.FC = () => {
           {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock')}
 
           {/* Vehicle Model Input */}
-          {renderInput('Vehicle Model', vehicleModel, setVehicleModel, 'car')}
+          
 
           {/* License Plate Input */}
           {renderInput('License Plate', licensePlate, setLicensePlate, 'id-card')}
@@ -140,9 +140,12 @@ const RegisterScreen: React.FC = () => {
           </TouchableOpacity>
 
           {/* Back to Login */}
-          <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.backButtonText}>Already have an account? Login</Text>
-          </TouchableOpacity>
+          <View style={styles.backContainer}>
+            <Text style={styles.backButtonText}>Already have an account? </Text>
+            <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.loginText}>Login</Text>
+            </TouchableOpacity>
+          </View>
         </Animated.View>
       </LinearGradient>
     </ScrollView>
@@ -221,10 +224,19 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
   },
-  backButton: {
+  backContainer: {
+    flexDirection: 'row',
     marginTop: 30,
+    alignItems: 'center',
   },
   backButtonText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  backButton: {
+    marginLeft: 5,
+  },
+  loginText: {
     fontSize: 16,
     color: '#3498DB',
     textAlign: 'center',
