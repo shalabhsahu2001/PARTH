@@ -9,6 +9,7 @@ import {
   ScrollView,
   Animated,
   Easing,
+  Image, // Added Image import
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
@@ -70,6 +71,10 @@ const RegisterScreen: React.FC = () => {
     navigation.navigate('Login');
   };
 
+  const handleGoogleSignUp = () => {
+    Alert.alert('Google Sign-Up', 'Google sign-up is not yet implemented');
+  };
+
   const animateButton = () => {
     Animated.sequence([
       Animated.timing(buttonAnimation, {
@@ -119,7 +124,6 @@ const RegisterScreen: React.FC = () => {
           {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock')}
 
           {/* Vehicle Model Input */}
-          
 
           {/* License Plate Input */}
           {renderInput('License Plate', licensePlate, setLicensePlate, 'id-card')}
@@ -132,11 +136,15 @@ const RegisterScreen: React.FC = () => {
               handleRegister();
             }}
           >
-            <Animated.View
-              style={[styles.buttonGradient, { transform: [{ scale: buttonAnimation }] }]}
-            >
+            <Animated.View style={[styles.buttonGradient, { transform: [{ scale: buttonAnimation }] }]}>
               <Text style={styles.buttonText}>Register</Text>
             </Animated.View>
+          </TouchableOpacity>
+
+          {/* Sign Up with Google */}
+          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
+            <Image source={require('../../assets/images/google-logo.png')} style={styles.googleLogo} />
+            <Text style={styles.googleButtonText}>Sign Up with Google</Text>
           </TouchableOpacity>
 
           {/* Back to Login */}
@@ -208,7 +216,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     height: 50,
-    width : 120,
+    width: 120,
     borderRadius: 15,
     overflow: 'hidden',
   },
@@ -217,12 +225,37 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#2980B9',
-    elevation: 5, // Added elevation for shadow effect
+    elevation: 5,
   },
   buttonText: {
     color: '#fff',
     fontSize: 22,
     fontWeight: '700',
+  },
+  googleButton: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    height: 50,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+  },
+  googleLogo: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
+  },
+  googleButtonText: {
+    fontSize: 16,
+    color: '#555',
   },
   backContainer: {
     flexDirection: 'row',
