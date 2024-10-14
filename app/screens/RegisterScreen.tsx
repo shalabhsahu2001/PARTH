@@ -204,7 +204,8 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: 20,
-    height: 55,
+    height: 50,
+    width : 120,
     borderRadius: 15,
     overflow: 'hidden',
   },
@@ -217,7 +218,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '700',
   },
   backButton: {
