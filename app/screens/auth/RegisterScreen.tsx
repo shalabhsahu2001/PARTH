@@ -9,12 +9,13 @@ import {
   ScrollView,
   Animated,
   Easing,
-  Image, // Added Image import
+  Image,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import TermsConditionsModal from './TermsConditionsModal'; // Import the new component
 
 type RootStackParamList = {
   Login: undefined;
@@ -34,13 +35,16 @@ const RegisterScreen: React.FC = () => {
   const [vehicleModel, setVehicleModel] = useState<string>('');
   const [licensePlate, setLicensePlate] = useState<string>('');
 
+  // Checkbox state
+  const [isAgreed, setIsAgreed] = useState<boolean>(false);
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
   // Animation state
-  const [buttonAnimation] = useState(new Animated.Value(1)); // Button scale animation
-  const [fadeAnim] = useState(new Animated.Value(0)); // Fade animation for form
-  const [slideAnim] = useState(new Animated.Value(-100)); // Slide animation for form
+  const [buttonAnimation] = useState(new Animated.Value(1));
+  const [fadeAnim] = useState(new Animated.Value(0));
+  const [slideAnim] = useState(new Animated.Value(-100));
 
   useEffect(() => {
-    // Start fade-in and slide-in effect for form content
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -57,13 +61,18 @@ const RegisterScreen: React.FC = () => {
   }, []);
 
   const handleRegister = () => {
-    if (!nameDLRC || !email || !password || !confirmPassword || !vehicleModel || !licensePlate) {
+    if (!nameDLRC || !email || !password || !confirmPassword || !licensePlate) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
 
     if (password !== confirmPassword) {
       Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    if (!isAgreed) {
+      Alert.alert('Error', 'You must agree to the terms and conditions');
       return;
     }
 
@@ -78,12 +87,12 @@ const RegisterScreen: React.FC = () => {
   const animateButton = () => {
     Animated.sequence([
       Animated.timing(buttonAnimation, {
-        toValue: 0.95, // Scale down
+        toValue: 0.95,
         duration: 150,
         useNativeDriver: true,
       }),
       Animated.timing(buttonAnimation, {
-        toValue: 1, // Scale back up
+        toValue: 1,
         duration: 150,
         useNativeDriver: true,
       }),
@@ -105,6 +114,10 @@ const RegisterScreen: React.FC = () => {
     );
   };
 
+  const toggleTermsCondition = () => {
+    setIsModalVisible(!isModalVisible);
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <LinearGradient colors={['#E3FDFD', '#FEFCFD']} style={styles.formContainer}>
@@ -123,10 +136,23 @@ const RegisterScreen: React.FC = () => {
           {/* Confirm Password Input */}
           {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock')}
 
-          {/* Vehicle Model Input */}
+          {/* Mobile Number Input */}
+          {renderInput('Mobile Number', licensePlate, setLicensePlate, 'id-card')}
 
-          {/* License Plate Input */}
-          {renderInput('License Plate', licensePlate, setLicensePlate, 'id-card')}
+          {/* Checkbox for Terms and Conditions */}
+          <View style={styles.checkboxContainer}>
+            <TouchableOpacity onPress={() => setIsAgreed(!isAgreed)}>
+              <View style={[styles.checkbox, isAgreed ? styles.checked : styles.unchecked]}>
+                {isAgreed && <Text style={styles.checkboxText}>✔</Text>}
+              </View>
+            </TouchableOpacity>
+            <Text style={styles.termsText}>
+              I agree to the{' '}
+              <Text style={styles.termsCondition} onPress={toggleTermsCondition}>
+                Terms and Conditions
+              </Text>
+            </Text>
+          </View>
 
           {/* Register Button */}
           <TouchableOpacity
@@ -135,6 +161,7 @@ const RegisterScreen: React.FC = () => {
               animateButton();
               handleRegister();
             }}
+            disabled={!isAgreed} // Disable button if terms not agreed
           >
             <Animated.View style={[styles.buttonGradient, { transform: [{ scale: buttonAnimation }] }]}>
               <Text style={styles.buttonText}>Register</Text>
@@ -156,6 +183,16 @@ const RegisterScreen: React.FC = () => {
           </View>
         </Animated.View>
       </LinearGradient>
+
+      {/* Terms and Conditions Modal */}
+      <TermsConditionsModal 
+        visible={isModalVisible} 
+        onClose={toggleTermsCondition} 
+        onAccept={() => {
+          setIsAgreed(true);
+          setIsModalVisible(false);
+        }} 
+      />
     </ScrollView>
   );
 };
@@ -243,36 +280,64 @@ const styles = StyleSheet.create({
     width: '100%',
     borderWidth: 1,
     borderColor: '#ddd',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
   },
   googleLogo: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
     marginRight: 10,
   },
   googleButtonText: {
-    fontSize: 16,
-    color: '#555',
+    color: '#333',
+    fontSize: 18,
   },
   backContainer: {
     flexDirection: 'row',
-    marginTop: 30,
-    alignItems: 'center',
+    marginTop: 20,
+    justifyContent: 'center',
   },
   backButtonText: {
     fontSize: 16,
-    color: '#000',
+    color: '#333',
   },
   backButton: {
     marginLeft: 5,
   },
   loginText: {
+    fontWeight: 'bold',
+    color: '#2980B9',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 5,
+    borderWidth: 2,
+    borderColor: '#2980B9',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  checked: {
+    backgroundColor: '#2980B9',
+  },
+  unchecked: {
+    backgroundColor: '#fff',
+  },
+  checkboxText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  termsText: {
     fontSize: 16,
-    color: '#3498DB',
-    textAlign: 'center',
+    color: '#333',
+  },
+  termsCondition: {
+    color: '#2980B9',
+    fontWeight: 'bold',
   },
 });
 
