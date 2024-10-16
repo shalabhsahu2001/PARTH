@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "236549708946",
+    "project_id": "parth-90dd5",
+    "storage_bucket": "parth-90dd5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:236549708946:android:ed714b6de4be9d81339a4b",
+        "android_client_info": {
+          "package_name": "com.PARTH"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUNTpgwioBhtVIKF7OQjKCZZYU50Q4_9w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
