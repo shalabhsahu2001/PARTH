@@ -9,13 +9,14 @@ import {
   ScrollView,
   Animated,
   Easing,
-  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
-import TermsConditionsModal from './TermsConditionsModal'; // Import the new component
+import axios from 'axios';
+import TermsConditionsModal from './TermsConditionsModal';
 
 type RootStackParamList = {
   Login: undefined;
@@ -27,19 +28,15 @@ type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 const RegisterScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
 
-  // Form state
-  const [nameDLRC, setNameDLRC] = useState<string>('');
-  const [email, setEmail] = useState<string>('');
-  const [password, setPassword] = useState<string>('');
-  const [confirmPassword, setConfirmPassword] = useState<string>('');
-  const [vehicleModel, setVehicleModel] = useState<string>('');
-  const [licensePlate, setLicensePlate] = useState<string>('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [licensePlate, setLicensePlate] = useState('');
+  const [isAgreed, setIsAgreed] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Checkbox state
-  const [isAgreed, setIsAgreed] = useState<boolean>(false);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
-
-  // Animation state
   const [buttonAnimation] = useState(new Animated.Value(1));
   const [fadeAnim] = useState(new Animated.Value(0));
   const [slideAnim] = useState(new Animated.Value(-100));
@@ -60,8 +57,8 @@ const RegisterScreen: React.FC = () => {
     ]).start();
   }, []);
 
-  const handleRegister = () => {
-    if (!nameDLRC || !email || !password || !confirmPassword || !licensePlate) {
+  const handleRegister = async () => {
+    if (!name || !email || !password || !confirmPassword || !licensePlate) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -76,8 +73,33 @@ const RegisterScreen: React.FC = () => {
       return;
     }
 
-    Alert.alert('Registration Successful', 'You have successfully registered.');
-    navigation.navigate('Login');
+    const userData = {
+      name,
+      email,
+      password,
+      licensePlate,
+    };
+
+    setLoading(true);
+
+    try {
+      console.log('Sending data:', userData);
+
+      // Ensure you use the correct API endpoint here, change the IP if needed
+      const response = await axios.post('http://192.168.1.34:5000/api/register', userData);
+
+      if (response.status === 200) {
+        Alert.alert('Registration Successful', 'You have successfully registered.');
+        navigation.navigate('Login');
+      } else {
+        Alert.alert('Registration Failed', 'There was an issue with registration.');
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'There was an issue with registration.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const animateButton = () => {
@@ -95,24 +117,27 @@ const RegisterScreen: React.FC = () => {
     ]).start();
   };
 
-  const renderInput = (placeholder: string, value: string, onChange: (text: string) => void, icon: string) => {
-    return (
-      <View style={styles.inputCard}>
-        <FontAwesome5 name={icon} size={20} color="#3498DB" style={styles.inputIcon} />
-        <TextInput
-          style={styles.input}
-          placeholder={placeholder}
-          placeholderTextColor="#aaa"
-          value={value}
-          onChangeText={onChange}
-        />
-      </View>
-    );
-  };
+  const renderInput = (
+    placeholder: string,
+    value: string,
+    onChange: (text: string) => void,
+    icon: string,
+    secure?: boolean
+  ) => (
+    <View style={styles.inputCard}>
+      <FontAwesome5 name={icon} size={20} color="#3498DB" style={styles.inputIcon} />
+      <TextInput
+        style={styles.input}
+        placeholder={placeholder}
+        placeholderTextColor="#aaa"
+        value={value}
+        onChangeText={onChange}
+        secureTextEntry={secure}
+      />
+    </View>
+  );
 
-  const toggleTermsCondition = () => {
-    setIsModalVisible(!isModalVisible);
-  };
+  const toggleTermsCondition = () => setIsModalVisible(!isModalVisible);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -120,22 +145,12 @@ const RegisterScreen: React.FC = () => {
         <Animated.View style={[styles.formContent, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
           <Text style={styles.title}>Create Your Account</Text>
 
-          {/* Name as per DL/RC Input */}
-          {renderInput('Name as per DL/RC', nameDLRC, setNameDLRC, 'user')}
-
-          {/* Email Input */}
+          {renderInput('Name as per DL/RC', name, setName, 'user')}
           {renderInput('Email', email, setEmail, 'envelope')}
-
-          {/* Password Input */}
-          {renderInput('Password', password, setPassword, 'lock')}
-
-          {/* Confirm Password Input */}
-          {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock')}
-
-          {/* Mobile Number Input */}
+          {renderInput('Password', password, setPassword, 'lock', true)}
+          {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock', true)}
           {renderInput('Mobile Number', licensePlate, setLicensePlate, 'id-card')}
 
-          {/* Checkbox for Terms and Conditions */}
           <View style={styles.checkboxContainer}>
             <TouchableOpacity onPress={() => setIsAgreed(!isAgreed)}>
               <View style={[styles.checkbox, isAgreed ? styles.checked : styles.unchecked]}>
@@ -150,39 +165,35 @@ const RegisterScreen: React.FC = () => {
             </Text>
           </View>
 
-          {/* Register Button */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
               animateButton();
               handleRegister();
             }}
-            disabled={!isAgreed} // Disable button if terms not agreed
+            disabled={!isAgreed || loading}
           >
             <Animated.View style={[styles.buttonGradient, { transform: [{ scale: buttonAnimation }] }]}>
-              <Text style={styles.buttonText}>Register</Text>
+              {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Register</Text>}
             </Animated.View>
           </TouchableOpacity>
 
-          {/* Sign Up with Google */}
-          {/* Back to Login */}
           <View style={styles.backContainer}>
-            <Text style={styles.backButtonText}>Already have an account? </Text>
+            <Text style={styles.backButtonText}>Already have an account?</Text>
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginText}>Login</Text>
+              <Text style={styles.loginText}> Login</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
       </LinearGradient>
 
-      {/* Terms and Conditions Modal */}
-      <TermsConditionsModal 
-        visible={isModalVisible} 
-        onClose={toggleTermsCondition} 
+      <TermsConditionsModal
+        visible={isModalVisible}
+        onClose={toggleTermsCondition}
         onAccept={() => {
           setIsAgreed(true);
           setIsModalVisible(false);
-        }} 
+        }}
       />
     </ScrollView>
   );
@@ -244,7 +255,7 @@ const styles = StyleSheet.create({
   button: {
     marginTop: 20,
     height: 50,
-    width: 120,
+    width: 140,
     borderRadius: 15,
     overflow: 'hidden',
   },
@@ -257,29 +268,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 22,
+    fontSize: 20,
     fontWeight: '700',
-  },
-  googleButton: {
-    marginTop: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    height: 50,
-    width: '100%',
-    borderWidth: 1,
-    borderColor: '#ddd',
-  },
-  googleLogo: {
-    width: 20,
-    height: 20,
-    marginRight: 10,
-  },
-  googleButtonText: {
-    color: '#333',
-    fontSize: 18,
   },
   backContainer: {
     flexDirection: 'row',
@@ -294,41 +284,42 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   loginText: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#2980B9',
   },
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
+    marginBottom: 20,
   },
   checkbox: {
-    width: 24,
-    height: 24,
+    width: 20,
+    height: 20,
+    borderWidth: 1,
     borderRadius: 5,
-    borderWidth: 2,
-    borderColor: '#2980B9',
+    marginRight: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 10,
   },
   checked: {
-    backgroundColor: '#2980B9',
+    backgroundColor: '#3498DB',
+    borderColor: '#3498DB',
   },
   unchecked: {
-    backgroundColor: '#fff',
+    borderColor: '#ccc',
   },
   checkboxText: {
     color: '#fff',
-    fontWeight: 'bold',
+    fontSize: 14,
   },
   termsText: {
-    fontSize: 16,
+    fontSize: 14,
     color: '#333',
   },
   termsCondition: {
     color: '#2980B9',
-    fontWeight: 'bold',
+    textDecorationLine: 'underline',
   },
 });
 
