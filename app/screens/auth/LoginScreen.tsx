@@ -52,6 +52,9 @@ const LoginScreen: React.FC = () => {
       setLoading(false);
     }
   };
+  const handleGoogleSignUp = () => {
+      Alert.alert('Google Sign-In', 'Google sign-in is not yet implemented');
+    };
 
   const handleRegister = () => {
     navigation.navigate('Register'); // Navigate to Register screen
@@ -114,7 +117,10 @@ const LoginScreen: React.FC = () => {
         >
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
-
+        <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
+            <Image source={require('../../../assets/images/google-logo.png')} style={styles.googleLogo} />
+            <Text style={styles.googleButtonText}>Sign In with Google</Text>
+        </TouchableOpacity>
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account?</Text>
           <TouchableOpacity onPress={handleRegister}>
@@ -228,6 +234,27 @@ const styles = StyleSheet.create({
     color: '#2980B9',
     fontWeight: '600',
   },
+  googleButton: {
+    marginTop: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    height: 50,
+    width: '100%',
+    borderWidth: 1,
+    borderColor: '#ddd',
+  },
+  googleLogo: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  googleButtonText: {
+    color: '#333',
+    fontSize: 18,
+  }
 });
 
 export default LoginScreen;

@@ -80,10 +80,6 @@ const RegisterScreen: React.FC = () => {
     navigation.navigate('Login');
   };
 
-  const handleGoogleSignUp = () => {
-    Alert.alert('Google Sign-Up', 'Google sign-up is not yet implemented');
-  };
-
   const animateButton = () => {
     Animated.sequence([
       Animated.timing(buttonAnimation, {
@@ -169,11 +165,6 @@ const RegisterScreen: React.FC = () => {
           </TouchableOpacity>
 
           {/* Sign Up with Google */}
-          <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
-            <Image source={require('../../../assets/images/google-logo.png')} style={styles.googleLogo} />
-            <Text style={styles.googleButtonText}>Sign Up with Google</Text>
-          </TouchableOpacity>
-
           {/* Back to Login */}
           <View style={styles.backContainer}>
             <Text style={styles.backButtonText}>Already have an account? </Text>
