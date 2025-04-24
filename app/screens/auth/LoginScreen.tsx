@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
+  Home: undefined; // Add Home as a navigation target
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -35,26 +36,42 @@ const LoginScreen: React.FC = () => {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-
+  
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
-
+  
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate an API call
-      Alert.alert('Login Successful', `Welcome ${email}`);
+      const response = await fetch('http://192.168.31.112:5000/api/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.status === 200 || response.status == 201) {
+        Alert.alert('Login Successful', `Welcome ${data.name || email}`);
+        navigation.navigate('Home');
+      } else {
+        Alert.alert('Error', data.message || 'Login failed');
+      }
     } catch (error) {
       Alert.alert('Error', 'Login failed');
     } finally {
       setLoading(false);
     }
   };
+  
+
   const handleGoogleSignUp = () => {
-      Alert.alert('Google Sign-In', 'Google sign-in is not yet implemented');
-    };
+    Alert.alert('Google Sign-In', 'Google sign-in is not yet implemented');
+  };
 
   const handleRegister = () => {
     navigation.navigate('Register'); // Navigate to Register screen
@@ -118,8 +135,8 @@ const LoginScreen: React.FC = () => {
           <Text style={styles.buttonText}>{loading ? 'Logging in...' : 'Login'}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.googleButton} onPress={handleGoogleSignUp}>
-            <Image source={require('../../../assets/images/google-logo.png')} style={styles.googleLogo} />
-            <Text style={styles.googleButtonText}>Sign In with Google</Text>
+          <Image source={require('../../../assets/images/google-logo.png')} style={styles.googleLogo} />
+          <Text style={styles.googleButtonText}>Sign In with Google</Text>
         </TouchableOpacity>
         <View style={styles.registerContainer}>
           <Text style={styles.registerText}>Don't have an account?</Text>
@@ -141,7 +158,6 @@ const styles = StyleSheet.create({
   logoContainer: {
     marginBottom: 60,
     alignItems: 'center',
-    
   },
   loginBox: {
     width: '85%',
