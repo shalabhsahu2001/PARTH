@@ -86,7 +86,7 @@ const RegisterScreen: React.FC = () => {
       console.log('Sending data:', userData);
 
       // Ensure you use the correct API endpoint here, change the IP if needed
-      const response = await axios.post('http://192.168.31.112:5000/api/register', userData);
+      const response = await axios.post('http://192.168.1.35:5000/api/register', userData);
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Registration Successful', 'You have successfully registered.');
