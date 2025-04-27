@@ -56,7 +56,7 @@ const LoginScreen: React.FC = () => {
       const data = await response.json();
   
       if (response.status === 200 || response.status == 201) {
-        Alert.alert('Login Successful', `Welcome ${data.name || email}`);
+        Alert.alert('Login Successful', `Welcome ${data.user.name || email}`);
         navigation.navigate('Home');
       } else {
         Alert.alert('Error', data.message || 'Login failed');
