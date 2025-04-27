@@ -4,35 +4,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native'; // Importing the navigation hook
-//import { RootStackParamList } from '../types'; // Import the types
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // Import the proper navigation prop type
-
-// Define the navigation prop type
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
-
-export type RootStackParamList = {
-  Home: undefined;
-  Login: undefined;
-  Register: undefined;
-  Parking: undefined;  // This is for the "Parking" screen
-};
 
 const HomeScreen: React.FC = () => {
-  // Get the navigation object using the useNavigation hook and define the navigation type
-  const navigation = useNavigation<HomeScreenNavigationProp>();
-
   // Dynamic greeting based on time
   const getGreeting = () => {
     const currentHour = new Date().getHours();
     if (currentHour < 12) return 'Good Morning ☀️';
     else if (currentHour < 18) return 'Good Afternoon ☀️';
     else return 'Good Evening 🌙';
-  };
-
-  // Handle parking card click to navigate to the ParkingLayoutScreen
-  const handleParkingCardPress = () => {
-    navigation.navigate('Parking'); // Navigate to the ParkingLayoutScreen
   };
 
   return (
@@ -84,28 +63,23 @@ const HomeScreen: React.FC = () => {
 
         {/* Nearby Spaces */}
         <Text style={styles.nearbyTitle}>Nearby Spaces</Text>
-        <TouchableOpacity onPress={handleParkingCardPress}>
-          <ParkingCard
-            image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
-            name="Mayo Hall Multilevel Parking"
-            location="Mayo Hall Crossing, Prayagraj"
-            price="Rs 18/hour"
-          />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={handleParkingCardPress}>
-          <ParkingCard
-            image="https://images.unsplash.com/photo-1570129477492-45c003edd2be"
-            name="Azaad Park Parking"
-            location="Stanley Road, Prayagraj"
-            price="Rs 15/hour"
-          />
-        </TouchableOpacity>
+        <ParkingCard
+          image="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+          name="Mayo Hall Multilevel Parking"
+          location="Mayo Hall Crossing, Prayagraj"
+          price="Rs 18/hour"
+        />
+        <ParkingCard
+          image="https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+          name="Azaad Park Parking"
+          location="Stanley Road, Prayagraj"
+          price="Rs 15/hour"
+        />
       </ScrollView>
     </View>
   );
 };
 
-// Category component for vehicle type selection
 const Category = ({ icon, label, color }: { icon: any; label: string; color: string }) => (
   <TouchableOpacity style={styles.categoryButton}>
     <View style={[styles.categoryIcon, { backgroundColor: color + '20' }]}>
@@ -115,7 +89,6 @@ const Category = ({ icon, label, color }: { icon: any; label: string; color: str
   </TouchableOpacity>
 );
 
-// ParkingCard component to display each parking space
 const ParkingCard = ({ image, name, location, price }: { image: string; name: string; location: string; price: string }) => (
   <View style={styles.card}>
     <Image source={{ uri: image }} style={styles.cardImage} />
