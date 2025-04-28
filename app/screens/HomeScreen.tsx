@@ -1,26 +1,46 @@
 // app/screens/HomeScreen.tsx
 
-import React from 'react';
-import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity, Animated, Dimensions } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native'; // Importing the navigation hook
-//import { RootStackParamList } from '../types'; // Import the types
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'; // Import the proper navigation prop type
-
-// Define the navigation prop type
-type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 export type RootStackParamList = {
   Home: undefined;
   Login: undefined;
   Register: undefined;
-  Parking: undefined;  // This is for the "Parking" screen
+  Parking: undefined;
+  Profile: undefined;
 };
 
+type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
+
 const HomeScreen: React.FC = () => {
-  // Get the navigation object using the useNavigation hook and define the navigation type
   const navigation = useNavigation<HomeScreenNavigationProp>();
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const drawerWidth = 280;
+  const translateX = React.useRef(new Animated.Value(drawerWidth)).current;
+  
+  const toggleDrawer = () => {
+    if (drawerVisible) {
+      // Close drawer
+      Animated.timing(translateX, {
+        toValue: drawerWidth,
+        duration: 300,
+        useNativeDriver: true,
+      }).start(() => setDrawerVisible(false));
+    } else {
+      // Open drawer
+      setDrawerVisible(true);
+      Animated.timing(translateX, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+  };
 
   // Dynamic greeting based on time
   const getGreeting = () => {
@@ -32,7 +52,7 @@ const HomeScreen: React.FC = () => {
 
   // Handle parking card click to navigate to the ParkingLayoutScreen
   const handleParkingCardPress = () => {
-    navigation.navigate('Parking'); // Navigate to the ParkingLayoutScreen
+    navigation.navigate('Parking');
   };
 
   return (
@@ -45,6 +65,44 @@ const HomeScreen: React.FC = () => {
         style={styles.gradient}
       />
 
+      {/* Drawer Overlay */}
+      {drawerVisible && (
+        <TouchableOpacity 
+          style={styles.overlay} 
+          activeOpacity={1} 
+          onPress={toggleDrawer}
+        />
+      )}
+
+      {/* Drawer */}
+      <Animated.View 
+        style={[
+          styles.drawer,
+          { transform: [{ translateX: translateX }] }
+        ]}
+      >
+        <View style={styles.drawerHeader}>
+          <Text style={styles.drawerTitle}>PARTH</Text>
+        </View>
+        
+        <View style={styles.drawerContent}>
+          <TouchableOpacity style={styles.drawerItem}>
+            <Ionicons name="home" size={24} color="#333" />
+            <Text style={styles.drawerItemText}>Home</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.drawerItem}>
+            <Ionicons name="person" size={24} color="#333" />
+            <Text style={styles.drawerItemText}>Profile</Text>
+          </TouchableOpacity>
+        </View>
+        
+        <TouchableOpacity style={styles.signOutButton}>
+          <Ionicons name="log-out" size={24} color="#fff" />
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
+      </Animated.View>
+
       <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
         {/* Top Greeting Section */}
         <View style={styles.greetingSection}>
@@ -53,8 +111,8 @@ const HomeScreen: React.FC = () => {
               <Text style={styles.greeting}>{getGreeting()}</Text>
               <Text style={styles.username}>Shalabh Sahu</Text>
             </View>
-            <TouchableOpacity style={styles.notification}>
-              <Ionicons name="notifications-outline" size={24} color="#fff" />
+            <TouchableOpacity style={styles.drawerButton} onPress={toggleDrawer}>
+              <Ionicons name="menu" size={24} color="#fff" />
             </TouchableOpacity>
           </View>
         </View>
@@ -159,7 +217,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginTop: 4,
   },
-  notification: {
+  drawerButton: {
     backgroundColor: '#b983ff',
     padding: 10,
     borderRadius: 30,
@@ -255,6 +313,75 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#6bcb77',
+  },
+  // Drawer styles
+  drawer: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 280,
+    height: '100%',
+    backgroundColor: '#fff',
+    zIndex: 999,
+    paddingTop: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 10,
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 998,
+  },
+  drawerHeader: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  drawerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#a18cd1',
+  },
+  drawerContent: {
+    flex: 1,
+    paddingVertical: 20,
+  },
+  drawerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+  },
+  drawerItemText: {
+    fontSize: 16,
+    marginLeft: 15,
+    color: '#333',
+  },
+  signOutButton: {
+    backgroundColor: '#FF6B6B',
+    marginHorizontal: 20,
+    marginBottom: 30,
+    padding: 15,
+    borderRadius: 12,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signOutText: {
+    color: '#fff',
+    marginLeft: 10,
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
 

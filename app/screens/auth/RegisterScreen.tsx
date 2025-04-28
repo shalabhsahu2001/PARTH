@@ -32,7 +32,7 @@ const RegisterScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [licensePlate, setLicensePlate] = useState('');
+  const [mobile, setMobile] = useState('');
   const [isAgreed, setIsAgreed] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -58,7 +58,7 @@ const RegisterScreen: React.FC = () => {
   }, []);
 
   const handleRegister = async () => {
-    if (!name || !email || !password || !confirmPassword || !licensePlate) {
+    if (!name || !email || !password || !confirmPassword || !mobile) {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
@@ -77,7 +77,7 @@ const RegisterScreen: React.FC = () => {
       name,
       email,
       password,
-      licensePlate,
+      mobile,
     };
 
     setLoading(true);
@@ -86,7 +86,7 @@ const RegisterScreen: React.FC = () => {
       console.log('Sending data:', userData);
 
       // Ensure you use the correct API endpoint here, change the IP if needed
-      const response = await axios.post('http://192.168.1.35:5000/api/register', userData);
+      const response = await axios.post('http://192.168.30.110:5000/api/register', userData);
 
       if (response.status === 200 || response.status === 201) {
         Alert.alert('Registration Successful', 'You have successfully registered.');
@@ -149,7 +149,7 @@ const RegisterScreen: React.FC = () => {
           {renderInput('Email', email, setEmail, 'envelope')}
           {renderInput('Password', password, setPassword, 'lock', true)}
           {renderInput('Confirm Password', confirmPassword, setConfirmPassword, 'lock', true)}
-          {renderInput('Mobile Number', licensePlate, setLicensePlate, 'id-card')}
+          {renderInput('Mobile Number', mobile, setMobile, 'id-card')}
 
           <View style={styles.checkboxContainer}>
             <TouchableOpacity onPress={() => setIsAgreed(!isAgreed)}>
