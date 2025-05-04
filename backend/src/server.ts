@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import authRoutes from './routes/authRoutes';
+import slotRoutes from './routes/slotRoutes';
 
 dotenv.config();
 const app = express();
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(cors());
 app.use(bodyParser.json());
 app.use('/api', authRoutes);
+app.use('/api/slots', slotRoutes);
 
 const PORT = process.env.PORT || 5000;
 
