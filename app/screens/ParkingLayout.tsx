@@ -7,29 +7,35 @@ import {
   SafeAreaView,
   ScrollView,
   Alert,
-  Dimensions
+  Dimensions,
+  Modal,
 } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
-import { useUserContext } from '../context/userContext'; // Import global context
+import { useUserContext } from '../context/userContext';
 
 const { width } = Dimensions.get('window');
 
 const ParkingLayoutScreen: React.FC = () => {
-  // Access the user's email from global context
+  // Global context for the logged in user
   const { userEmail } = useUserContext();
 
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [occupiedSpots, setOccupiedSpots] = useState<string[]>([]);
-  
-  // Define parking spots data
+
+  // NEW STATES for duration selection modal
+  const [showDurationModal, setShowDurationModal] = useState(false);
+  const [selectedDuration, setSelectedDuration] = useState<number>(1); // default to 1 hour
+
+  // Define parking sections
   const sections = {
     A: ['A-1', 'A-2', 'A-3'],
     B: ['B-1', 'B-2'],
     C: ['C-1', 'C-2'],
     D: ['D-1', 'D-2']
   };
+
   useEffect(() => {
     const fetchOccupiedSlots = async () => {
       try {
@@ -39,7 +45,7 @@ const ParkingLayoutScreen: React.FC = () => {
         const result = await response.json();
         console.log('Fetched occupied slots response:', result);
         if (response.ok) {
-          // Map the returned objects to extract the slotId string
+          // Extract the slotId string from the result
           const occupied = Array.isArray(result.occupiedSlots)
             ? result.occupiedSlots.map((item: any) => item.slotId)
             : [];
@@ -52,38 +58,46 @@ const ParkingLayoutScreen: React.FC = () => {
         console.error('Error fetching occupied slots:', error);
       }
     };
-    
 
     fetchOccupiedSlots();
-  }, []);  // This hook runs once when the component mounts
+  }, []);
 
+  // When a slot is clicked, if not occupied then select it & open the duration selector
   const handleSlotClick = (slot: string) => {
     if (!occupiedSpots.includes(slot)) {
       setSelectedSlot(slot);
+      // Open the bottom drawer for duration selection
+      setShowDurationModal(true);
     }
   };
 
-  const handleBookSpace = async () => {
-    console.log(userEmail);
+  // Called when user confirms duration selection from the bottom drawer
+  const handleConfirmDuration = async () => {
+    // Now that we have both slot and duration ready, proceed to book space
+    console.log('User:', userEmail);
+    console.log('Slot:', selectedSlot, 'Duration:', selectedDuration, 'hour(s)');
     if (selectedSlot && userEmail) {
       try {
-        // Call the backend API to update the slot booking in MongoDB.
-        // The API receives the slotId and the logged in user's email as bookedBy.
+        // Update your backend API as required to include duration if needed.
         const response = await fetch('http://192.168.1.35:5000/api/slots/book', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ slotId: selectedSlot, email: userEmail }),
+          body: JSON.stringify({ 
+            slotId: selectedSlot, 
+            email: userEmail,
+            duration: selectedDuration // included duration in request body
+          }),
         });
       
         const result = await response.json();
         if (response.status === 200 || response.status === 201) {
-          // Update UI by adding the booked slot locally
+          // Reflect the booked slot in UI locally
           setOccupiedSpots([...occupiedSpots, selectedSlot]);
           Alert.alert(
             "Space Booked",
-            `You have successfully booked parking space ${selectedSlot}`,
+            `You have successfully booked parking space ${selectedSlot} for ${selectedDuration} hour(s)`,
             [{ text: "OK" }]
           );
           setSelectedSlot(null);
@@ -94,9 +108,10 @@ const ParkingLayoutScreen: React.FC = () => {
         Alert.alert("Error", "Network request failed");
       }
     } else {
-      // If no slot is selected or user is not logged in
       Alert.alert("Error", "Please select a slot and ensure you're logged in");
     }
+    // Close the duration selection modal
+    setShowDurationModal(false);
   };
 
   const renderParkingSpot = (spot: string) => {
@@ -131,7 +146,7 @@ const ParkingLayoutScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="dark" />
-      
+
       {/* Header with back button */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton}>
@@ -139,7 +154,7 @@ const ParkingLayoutScreen: React.FC = () => {
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Choose Space</Text>
       </View>
-      
+
       {/* Floor selection tabs */}
       <View style={styles.floorTabsContainer}>
         {[1, 2, 3, 4].map((floor) => (
@@ -163,7 +178,7 @@ const ParkingLayoutScreen: React.FC = () => {
           </TouchableOpacity>
         ))}
       </View>
-      
+
       {/* Parking layout */}
       <View style={styles.layoutWrapper}>
         <ScrollView style={styles.layoutContainer} showsVerticalScrollIndicator={false}>
@@ -177,13 +192,13 @@ const ParkingLayoutScreen: React.FC = () => {
                 <Text style={styles.sectionLabel}>B</Text>
               </View>
             </View>
-            
+
             {/* Entry */}
             <View style={styles.entryContainer}>
               <Text style={styles.entryLabel}>ENTRY</Text>
               <View style={styles.entryLine} />
             </View>
-            
+
             {/* Upper Rows */}
             <View style={styles.parkingRow}>
               <View style={styles.leftSection}>
@@ -194,7 +209,7 @@ const ParkingLayoutScreen: React.FC = () => {
                 {sections.B.map(spot => renderParkingSpot(spot))}
               </View>
             </View>
-            
+
             {/* Section Labels */}
             <View style={styles.sectionLabelsRow}>
               <View style={styles.sectionLabelContainer}>
@@ -204,7 +219,7 @@ const ParkingLayoutScreen: React.FC = () => {
                 <Text style={styles.sectionLabel}>D</Text>
               </View>
             </View>
-            
+
             {/* Lower Rows */}
             <View style={styles.parkingRow}>
               <View style={styles.leftSection}>
@@ -215,7 +230,7 @@ const ParkingLayoutScreen: React.FC = () => {
                 {sections.D.map(spot => renderParkingSpot(spot))}
               </View>
             </View>
-            
+
             {/* Exit */}
             <View style={styles.exitContainer}>
               <View style={styles.exitLine} />
@@ -224,7 +239,7 @@ const ParkingLayoutScreen: React.FC = () => {
           </View>
         </ScrollView>
       </View>
-      
+
       {/* Legend */}
       <View style={styles.legendContainer}>
         <View style={styles.legendItem}>
@@ -240,9 +255,9 @@ const ParkingLayoutScreen: React.FC = () => {
           <Text style={styles.legendText}>Selected</Text>
         </View>
       </View>
-      
-      {/* Book Space Button - Only active when a slot is selected */}
-      <TouchableOpacity 
+
+      {/* Book Space Button – you can remove or repurpose this since duration selection now comes via modal */}
+      {/* <TouchableOpacity 
         style={[
           styles.bookButton,
           !selectedSlot ? styles.bookButtonDisabled : null
@@ -254,8 +269,90 @@ const ParkingLayoutScreen: React.FC = () => {
         <Text style={styles.bookButtonText}>
           {selectedSlot ? `Book Space ${selectedSlot}` : 'Book Space'}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+
+      {/* Bottom Drawer: Duration Selector Modal */}
+      <DurationSelector
+        visible={showDurationModal}
+        selectedDuration={selectedDuration}
+        onSelect={(duration: number) => setSelectedDuration(duration)}
+        onClose={() => setShowDurationModal(false)}
+        onConfirm={handleConfirmDuration}
+      />
     </SafeAreaView>
+  );
+};
+
+interface DurationSelectorProps {
+  visible: boolean;
+  onClose: () => void;
+  onSelect: (duration: number) => void;
+  selectedDuration: number;
+  onConfirm: () => void;
+}
+
+const DurationSelector: React.FC<DurationSelectorProps> = ({
+  visible,
+  onClose,
+  onSelect,
+  selectedDuration,
+  onConfirm,
+}) => {
+  // Hours from 1 to 12 for selection
+  const hoursArray = Array.from({ length: 12 }, (_, i) => i + 1);
+  const containerSize = 250;
+  const center = containerSize / 2; // 125
+  const buttonSize = 40;
+  const radius = 100;
+
+  // Helper to compute circular button positions
+  const getPosition = (index: number, total: number) => {
+    const angle = (2 * Math.PI * index) / total - Math.PI / 2; // start from top
+    const x = center + radius * Math.cos(angle) - buttonSize / 2;
+    const y = center + radius * Math.sin(angle) - buttonSize / 2;
+    return { left: x, top: y };
+  };
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      onRequestClose={onClose}
+    >
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalContainer}>
+          <Text style={styles.modalTitle}>Select Duration (in hours)</Text>
+          <View style={styles.circularContainer}>
+            {hoursArray.map((hour, index) => {
+              const pos = getPosition(index, hoursArray.length);
+              const isSelected = selectedDuration === hour;
+              return (
+                <TouchableOpacity
+                  key={hour}
+                  style={[styles.hourButton, pos, isSelected && styles.hourButtonSelected]}
+                  onPress={() => onSelect(hour)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.hourText, isSelected && styles.hourTextSelected]}>
+                    {hour}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          {/* Optional Action Buttons */}
+          <View style={styles.modalActions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+              <Text style={styles.confirmButtonText}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
   );
 };
 
@@ -426,7 +523,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#FF6B6B',
     backgroundColor: '#fff',
-    transform: [{scale: 1.05}],
+    transform: [{ scale: 1.05 }],
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 3 },
@@ -507,6 +604,84 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     letterSpacing: 0.5,
+  },
+  // New Modal / Duration Selector styles
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    paddingTop: 20,
+    paddingBottom: 30,
+    paddingHorizontal: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 20,
+    color: '#333',
+  },
+  circularContainer: {
+    width: 250,
+    height: 250,
+    borderRadius: 125,
+    backgroundColor: '#F5F5F5',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'relative',
+  },
+  hourButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#007AFF',
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  hourButtonSelected: {
+    backgroundColor: '#fff',
+    borderWidth: 2,
+    borderColor: '#007AFF',
+  },
+  hourText: {
+    fontSize: 14,
+    color: '#fff',
+    fontWeight: '600',
+  },
+  hourTextSelected: {
+    color: '#007AFF',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    width: '100%',
+    justifyContent: 'space-evenly',
+    marginTop: 20,
+  },
+  cancelButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#ccc',
+    borderRadius: 8,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    color: '#333',
+  },
+  confirmButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+  },
+  confirmButtonText: {
+    fontSize: 16,
+    color: '#fff',
   },
 });
 
