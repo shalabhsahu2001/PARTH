@@ -13,6 +13,7 @@ export type RootStackParamList = {
   Register: undefined;
   Parking: undefined;
   Profile: undefined;
+  Maps: undefined;
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -94,6 +95,11 @@ const HomeScreen: React.FC = () => {
           <TouchableOpacity style={styles.drawerItem}>
             <Ionicons name="person" size={24} color="#333" />
             <Text style={styles.drawerItemText}>Profile</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate('Maps')}>
+            <Ionicons name="map" size={24} color="#333" />
+            <Text style={styles.drawerItemText}>Maps</Text>
           </TouchableOpacity>
         </View>
         
