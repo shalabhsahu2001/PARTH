@@ -12,18 +12,21 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
+import { useUserContext } from '@/app/context/userContext'; // Adjust path as needed
 
 // Define the types for navigation
 type RootStackParamList = {
   Login: undefined;
   Register: undefined;
-  Home: undefined; // Add Home as a navigation target
+  Home: undefined;
 };
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
 
 const LoginScreen: React.FC = () => {
   const navigation = useNavigation<NavigationProp>();
+  const { setUserEmail } = useUserContext();  // Get the setter from global context
+
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
@@ -36,13 +39,13 @@ const LoginScreen: React.FC = () => {
       Alert.alert('Error', 'Please enter both email and password');
       return;
     }
-  
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       Alert.alert('Error', 'Please enter a valid email address');
       return;
     }
-  
+
     setLoading(true);
     try {
       const response = await fetch('http://192.168.1.35:5000/api/login', {
@@ -52,10 +55,12 @@ const LoginScreen: React.FC = () => {
         },
         body: JSON.stringify({ email, password }),
       });
-  
+
       const data = await response.json();
-  
-      if (response.status === 200 || response.status == 201) {
+
+      if (response.status === 200 || response.status === 201) {
+        // Assume the backend returns an object with a "user" field and that it includes an "email"
+        setUserEmail(data.user.email);  // Save the logged-in user's email in global context
         Alert.alert('Login Successful', `Welcome ${data.user.name || email}`);
         navigation.navigate('Home');
       } else {
@@ -67,7 +72,6 @@ const LoginScreen: React.FC = () => {
       setLoading(false);
     }
   };
-  
 
   const handleGoogleSignUp = () => {
     Alert.alert('Google Sign-In', 'Google sign-in is not yet implemented');
@@ -270,7 +274,7 @@ const styles = StyleSheet.create({
   googleButtonText: {
     color: '#333',
     fontSize: 18,
-  }
+  },
 });
 
 export default LoginScreen;

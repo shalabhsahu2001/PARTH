@@ -3,6 +3,19 @@ import { Request, Response } from "express";
 import Slot from "../models/Slot";
 import User from "../models/User";
 
+export const getOccupiedSlots = async (req: Request, res: Response): Promise<any> => {
+  try {
+    // Find slots where isBooked is true.
+    // Here we select only the slotId to keep the response light: you could remove .select() if you need more details.
+    const occupiedSlots = await Slot.find({ isBooked: true }).select("slotId");
+    
+    // Return a JSON object containing the array of occupied slot IDs.
+    res.status(200).json({ occupiedSlots });
+  } catch (error) {
+    console.error("Error fetching occupied slots:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
 export const getAllSlots = async (req: Request, res: Response): Promise<any> => {
   try {
     const slots = await Slot.find();

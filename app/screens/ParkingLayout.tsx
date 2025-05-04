@@ -1,11 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert, Dimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+  Alert,
+  Dimensions
+} from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
+import { useUserContext } from '../context/userContext'; // Import global context
 
 const { width } = Dimensions.get('window');
 
 const ParkingLayoutScreen: React.FC = () => {
+  // Access the user's email from global context
+  const { userEmail } = useUserContext();
+
   const [selectedFloor, setSelectedFloor] = useState(1);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [occupiedSpots, setOccupiedSpots] = useState<string[]>([]);
@@ -17,6 +30,32 @@ const ParkingLayoutScreen: React.FC = () => {
     C: ['C-1', 'C-2'],
     D: ['D-1', 'D-2']
   };
+  useEffect(() => {
+    const fetchOccupiedSlots = async () => {
+      try {
+        const response = await fetch(
+          `http://192.168.1.35:5000/api/slots/occupied-slots?t=${new Date().getTime()}`
+        );
+        const result = await response.json();
+        console.log('Fetched occupied slots response:', result);
+        if (response.ok) {
+          // Map the returned objects to extract the slotId string
+          const occupied = Array.isArray(result.occupiedSlots)
+            ? result.occupiedSlots.map((item: any) => item.slotId)
+            : [];
+          console.log('Occupied slots after mapping:', occupied);
+          setOccupiedSpots(occupied);
+        } else {
+          console.error('Failed to fetch occupied slots:', result.message);
+        }
+      } catch (error) {
+        console.error('Error fetching occupied slots:', error);
+      }
+    };
+    
+
+    fetchOccupiedSlots();
+  }, []);  // This hook runs once when the component mounts
 
   const handleSlotClick = (slot: string) => {
     if (!occupiedSpots.includes(slot)) {
@@ -24,20 +63,39 @@ const ParkingLayoutScreen: React.FC = () => {
     }
   };
 
-  const handleBookSpace = () => {
-    if (selectedSlot) {
-      // Add the selected slot to occupied spots
-      setOccupiedSpots([...occupiedSpots, selectedSlot]);
+  const handleBookSpace = async () => {
+    console.log(userEmail);
+    if (selectedSlot && userEmail) {
+      try {
+        // Call the backend API to update the slot booking in MongoDB.
+        // The API receives the slotId and the logged in user's email as bookedBy.
+        const response = await fetch('http://192.168.1.35:5000/api/slots/book', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ slotId: selectedSlot, email: userEmail }),
+        });
       
-      // Show confirmation message
-      Alert.alert(
-        "Space Booked",
-        `You have successfully booked parking space ${selectedSlot}`,
-        [{ text: "OK" }]
-      );
-      
-      // Clear selection
-      setSelectedSlot(null);
+        const result = await response.json();
+        if (response.status === 200 || response.status === 201) {
+          // Update UI by adding the booked slot locally
+          setOccupiedSpots([...occupiedSpots, selectedSlot]);
+          Alert.alert(
+            "Space Booked",
+            `You have successfully booked parking space ${selectedSlot}`,
+            [{ text: "OK" }]
+          );
+          setSelectedSlot(null);
+        } else {
+          Alert.alert("Error", result.message || "Failed to book slot");
+        }
+      } catch (error) {
+        Alert.alert("Error", "Network request failed");
+      }
+    } else {
+      // If no slot is selected or user is not logged in
+      Alert.alert("Error", "Please select a slot and ensure you're logged in");
     }
   };
 
