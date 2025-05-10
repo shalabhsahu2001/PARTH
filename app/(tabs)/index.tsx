@@ -9,6 +9,7 @@ import HomeScreen from '../screens/HomeScreen';  // Import the HomeScreen
 import ParkingLayoutScreen from '../screens/ParkingLayout';
 import { UserProvider } from '../context/userContext';
 import MapsScreen from '../screens/MapScreen';
+import IoTParkingScreen from '../screens/IotParkingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,7 @@ const App = () => {
           <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="Parking" component={ParkingLayoutScreen} />
           <Stack.Screen name="Maps" component={MapsScreen} />
+          <Stack.Screen name="IoTParking" component={IoTParkingScreen} />
           
         </Stack.Navigator>
       </NavigationContainer>

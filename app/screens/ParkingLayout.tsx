@@ -40,7 +40,7 @@ const ParkingLayoutScreen: React.FC = () => {
     const fetchOccupiedSlots = async () => {
       try {
         const response = await fetch(
-          `http://192.168.1.35:5000/api/slots/occupied-slots?t=${new Date().getTime()}`
+          `http://192.168.30.110:5000/api/slots/occupied-slots?t=${new Date().getTime()}`
         );
         const result = await response.json();
         console.log('Fetched occupied slots response:', result);
@@ -79,7 +79,7 @@ const ParkingLayoutScreen: React.FC = () => {
     if (selectedSlot && userEmail) {
       try {
         // Update your backend API as required to include duration if needed.
-        const response = await fetch('http://192.168.1.35:5000/api/slots/book', {
+        const response = await fetch('http://192.168.30.110:5000/api/slots/book', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

@@ -14,6 +14,7 @@ export type RootStackParamList = {
   Parking: undefined;
   Profile: undefined;
   Maps: undefined;
+  IoTParking: undefined;
 };
 
 type HomeScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Home'>;
@@ -164,6 +165,16 @@ const HomeScreen: React.FC = () => {
             price="Rs 15/hour"
           />
         </TouchableOpacity>
+        {/* IoT test */}
+        <TouchableOpacity onPress={()=> navigation.navigate('IoTParking')}>
+          <ParkingCard
+            image="https://images.unsplash.com/photo-1570129477492-45c003edd2be"
+            name="IoT Test Parking"
+            location="Stanley Road, Prayagraj"
+            price="Rs 15/hour"
+          />
+        </TouchableOpacity>
+        
       </ScrollView>
     </View>
   );
